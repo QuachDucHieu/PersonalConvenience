@@ -22,6 +22,7 @@ const LoginForm = () => {
       await AuthService.login(values);
       router.push('/');
       router.refresh();
+      message.success('Đăng nhập thành công');
     } catch (err) {
       message.error(err instanceof Error ? err.message : 'Có lỗi xảy ra');
     } finally {
@@ -44,10 +45,11 @@ const LoginForm = () => {
             <Image
               src="/assets/auth/shield_icon.jpg"
               alt="Security Shield"
-              width={50}
-              height={50}
+              width={80}
+              height={80}
               priority
               unoptimized={true}
+              style={{ borderRadius: '50%' }}
             />
           </div>
           <Title level={2} style={{ margin: '16px 0 8px', fontSize: '28px' }}>

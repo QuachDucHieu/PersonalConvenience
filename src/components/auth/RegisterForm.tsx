@@ -23,6 +23,7 @@ export default function RegisterForm() {
       await AuthService.register(values);
       message.success('Đăng ký thành công!');
       router.push('/login');
+      message.success('Đăng ký tài khoản thành công');
     } catch (err) {
       message.error(err instanceof Error ? err.message : 'Có lỗi xảy ra');
     } finally {
@@ -45,9 +46,10 @@ export default function RegisterForm() {
             <Image
               src="/assets/auth/minimalist_icon.jpg"
               alt="Register Icon"
-              width={50}
-              height={50}
+              width={80}
+              height={80}
               priority
+              style={{ borderRadius: '50%' }}
             />
           </div>
           <Title level={2} style={{ margin: '16px 0 8px', fontSize: '28px' }}>
