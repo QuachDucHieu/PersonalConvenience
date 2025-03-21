@@ -1,0 +1,6 @@
+{
+  "command": "npm install antd @ant-design/icons",
+  "explanation": "Cài đặt thư viện Ant Design và icons của nó",
+  "is_background": false,
+  "require_user_approval": true
+} 

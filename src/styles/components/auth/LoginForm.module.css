@@ -1,0 +1,235 @@
+/* NEXT_PUBLIC_API_URL=http://localhost:5000  */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e6f3ff 0%, #f5f7fa 100%);
+  padding: 20px;
+}
+
+.form {
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1a1a1a;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fafafa;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #0095ff;
+  background: white;
+}
+
+.button {
+  width: 100%;
+  padding: 0.875rem;
+  background: #0095ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background: #0084e3;
+}
+
+.button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.googleButton {
+  background: white;
+  border: 1px solid #e1e1e1;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.googleButton:hover {
+  background: #f8f8f8;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1rem 0;
+  color: #666;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.divider span {
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+
+.forgotPassword {
+  text-align: right;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.forgotPassword a {
+  color: #0095ff;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.loginLink {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.loginLink a {
+  color: #0095ff;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.passwordInput {
+  position: relative;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Thêm class local để wrap các style global */
+.formWrapper :global(.ant-input-affix-wrapper) {
+  border-radius: 8px;
+  padding: 8px 11px;
+}
+
+.formWrapper :global(.ant-input-affix-wrapper:hover) {
+  border-color: #1890ff;
+}
+
+.formWrapper :global(.ant-input-affix-wrapper-focused) {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+.formWrapper :global(.ant-btn-primary) {
+  border-radius: 8px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+}
+
+.logoWrapper {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  background: #E2E4E5;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.decorationLeft,
+.decorationRight {
+  position: fixed;
+  z-index: 0;
+  opacity: 0.8;
+  animation: float 6s ease-in-out infinite;
+}
+
+.decorationLeft {
+  left: 5%;
+  bottom: 10%;
+}
+
+.decorationRight {
+  right: 5%;
+  top: 10%;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .decorationLeft,
+  .decorationRight {
+    display: none;
+  }
+}
