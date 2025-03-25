@@ -7,7 +7,7 @@ import {
   UserOutlined,
   DashboardOutlined,
   SettingOutlined,
-  LogoutOutlined
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useRouter, usePathname } from 'next/navigation';
 import { AuthService } from '@/services/auth.service';
@@ -37,7 +37,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       onClick: () => router.push('/settings')
     },
     {
-      type: 'divider'
+      key: 'divider',
+      type: 'divider' as const
     },
     {
       key: 'logout',
@@ -60,6 +61,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       label: 'Dashboard',
       onClick: () => router.push('/dashboard')
     },
+    {
+      key: '/users',
+      icon: <UserOutlined />,
+      label: 'Danh sách bạn bè',
+      onClick: () => router.push('/users')
+    }
     // Thêm các menu items khác tại đây
   ];
 

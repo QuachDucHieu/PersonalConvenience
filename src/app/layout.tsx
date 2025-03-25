@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono';
 import { Suspense } from 'react';
 import LoadingFallback from '@/components/common/LoadingFallback';
 import StyledComponentsRegistry from '@/lib/AntdRegistry';
+import { App as AntdApp } from 'antd';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -20,9 +21,11 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
         <StyledComponentsRegistry>
-          <Suspense fallback={<LoadingFallback />}>
-            {children}
-          </Suspense>
+          <AntdApp>
+            <Suspense fallback={<LoadingFallback />}>
+              {children}
+            </Suspense>
+          </AntdApp>
         </StyledComponentsRegistry>
       </body>
     </html>

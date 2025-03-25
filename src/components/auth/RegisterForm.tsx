@@ -21,7 +21,6 @@ export default function RegisterForm() {
     setIsLoading(true);
     try {
       await AuthService.register(values);
-      message.success('Đăng ký thành công!');
       router.push('/login');
       message.success('Đăng ký tài khoản thành công');
     } catch (err) {

@@ -8,6 +8,7 @@ import { AuthService } from '@/services/auth.service';
 import { LoginCredentials } from '@/types/auth.types';
 import styles from '@/styles/components/auth/LoginForm.module.css';
 import Link from 'next/link';
+import { successMessage, errorMessage } from '@/components/common/message';
 
 const { Title, Text } = Typography;
 
@@ -21,10 +22,10 @@ const LoginForm = () => {
     try {
       await AuthService.login(values);
       router.push('/');
+      successMessage('Đăng nhập thành công');
       router.refresh();
-      message.success('Đăng nhập thành công');
     } catch (err) {
-      message.error(err instanceof Error ? err.message : 'Có lỗi xảy ra');
+      errorMessage(err instanceof Error ? err.message : 'Có lỗi xảy ra');
     } finally {
       setIsLoading(false);
     }

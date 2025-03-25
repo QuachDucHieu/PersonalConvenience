@@ -89,7 +89,7 @@ const Home = () => {
           </Col>
           
           <Col xs={24} sm={12} md={8}>
-            <Card title="Thông tin chung" variant='borderless'>
+            <Card title="Thông tin chung" variant='outlined'>
               <div style={{ textAlign: 'center' }}>
                 <Title level={4}>
                   <EnvironmentOutlined /> {weather.name}
