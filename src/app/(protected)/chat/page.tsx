@@ -1,50 +1,62 @@
 'use client';
-import { useState } from 'react';
-import { Row, Col } from 'antd';
-import Chat from '@/components/chat/Chat';
-import ConversationsList from '@/components/chat/ConversationsList';
-import { User } from '@/types/users.type';
+import { useEffect, useState } from 'react';
+import { Card, List, Avatar, Typography, Spin } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
+import { UsersService } from '@/services/users.service';
+import { UsersListResponse } from '@/types/users.type';
 
-export default function ChatPage() {
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    // TODO: Lấy thông tin user hiện tại từ context hoặc state management
-    const currentUser: User = {
-        id: 1,
-        name: 'Current User',
-        email: 'current@example.com',
-        phone: '1234567890'
+const { Title } = Typography;
+
+export default function ChatListPage() {
+  const router = useRouter();
+  const [users, setUsers] = useState<UsersListResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersData = await UsersService.getList();
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
+    fetchUsers();
+  }, []);
+
+  if (loading) {
     return (
-        <Row style={{ height: '100vh' }}>
-            <Col span={6} style={{ borderRight: '1px solid #f0f0f0' }}>
-                <ConversationsList
-                    onSelectConversation={(userId) => {
-                        // TODO: Fetch user details by ID
-                        setSelectedUser({
-                            id: userId,
-                            name: 'Selected User',
-                            email: 'selected@example.com',
-                            phone: '0987654321'
-                        });
-                    }}
-                    selectedUserId={selectedUser?.id}
-                />
-            </Col>
-            <Col span={18}>
-                {selectedUser ? (
-                    <Chat currentUser={currentUser} otherUser={selectedUser} />
-                ) : (
-                    <div style={{ 
-                        height: '100%', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center' 
-                    }}>
-                        Chọn một cuộc trò chuyện để bắt đầu
-                    </div>
-                )}
-            </Col>
-        </Row>
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <Spin size="large" />
+      </div>
     );
+  }
+
+  return (
+    <div style={{ padding: '24px' }}>
+      <Card>
+        <Title level={2}>Danh sách chat</Title>
+        <List
+          itemLayout="horizontal"
+          dataSource={users}
+          renderItem={(user) => (
+            <List.Item 
+              style={{ cursor: 'pointer' }}
+              onClick={() => router.push(`/chat/${user.id}`)}
+            >
+              <List.Item.Meta
+                avatar={<Avatar icon={<UserOutlined />} />}
+                title={user.name}
+                description={user.email}
+              />
+            </List.Item>
+          )}
+        />
+      </Card>
+    </div>
+  );
 } 

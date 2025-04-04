@@ -3,21 +3,43 @@ export interface Message {
     content: string;
     senderId: number;
     receiverId: number;
+    file?: string;
     createdAt: string;
-    isRead: boolean;
+    updatedAt: string;
 }
 
 export interface Conversation {
     id: number;
-    otherUserId: number;
-    otherUserName: string;
-    lastMessage?: string;
-    lastMessageTime?: string;
+    otherUser : {
+        id: number;
+        name: string;
+        email?: string;
+    };
+    // lastMessage?: Message;
     unreadCount: number;
+    createdAt: string;
+    updatedAt: string;
+    latestMessage: {
+        content: string;
+        createdAt: string;
+        fileUrl?: string;
+        id: number;
+        senderId: number
+    }
 }
 
 export interface SendMessageDto {
     receiverId: number;
     content: string;
     file?: File;
+}
+
+export interface SocketMessage {
+    id: number;
+    content: string;
+    senderId: number;
+    receiverId: number;
+    file?: string;
+    createdAt: string;
+    updatedAt: string;
 } 

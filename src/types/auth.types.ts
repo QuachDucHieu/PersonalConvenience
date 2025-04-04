@@ -4,12 +4,8 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
+  access_token: string;
+  user: UsersListResponse;
 }
 
 export interface RegisterCredentials {
@@ -27,3 +23,10 @@ export interface ApiError {
   message: string;
   statusCode: number;
 } 
+
+interface UsersListResponse {
+  id: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+}

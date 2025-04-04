@@ -10,9 +10,9 @@ export const API_ENDPOINTS = {
     FINDBYID: (id: number) => `${API_URL}/users/${id}`
   },
   CHAT: {
-    SEND: `${API_URL}/chat/send`,
+    SEND: `${API_URL}/chat/messages`,
     CONVERSATIONS: `${API_URL}/chat/conversations`,
-    GET_CONVERSATION: (otherUserId: number) => `${API_URL}/chat/conversations/${otherUserId}`,
+    GET_CONVERSATION: (otherUserId: number) => `${API_URL}/chat/conversations/${otherUserId}/messages`,
     MARK_AS_READ: (messageId: number) => `${API_URL}/chat/messages/${messageId}/read`,
   }
 } as const; 

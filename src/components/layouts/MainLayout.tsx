@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, Button, theme, Avatar, Dropdown } from 'antd';
 import {
   MenuFoldOutlined,
@@ -11,13 +11,23 @@ import {
 } from '@ant-design/icons';
 import { useRouter, usePathname } from 'next/navigation';
 import { AuthService } from '@/services/auth.service';
+import { socketService } from '@/services/socket.service';
+import Cookies from 'js-cookie';
+import { UsersListResponse } from '@/types/users.type';
 
 const { Header, Sider, Content } = Layout;
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-  const router = useRouter();
+  const [user, setUser] = useState<UsersListResponse | null>(null);
+    const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    socketService.connect();
+    const user = Cookies.get('user');
+    if(user) setUser(JSON.parse(user));
+  }, [])
   
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -27,7 +37,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: 'Thông tin cá nhân',
+      label: user ? user.name : 'Thông tin user',
       onClick: () => router.push('/profile')
     },
     {
@@ -140,7 +150,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           padding: 24, 
           background: colorBgContainer,
           borderRadius: borderRadiusLG,
-          minHeight: 280 
+          height: 'calc(100vh - 112px)',
+          overflow: 'auto'
         }}>
           {children}
         </Content>

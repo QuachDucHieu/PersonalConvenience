@@ -1,9 +1,17 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { List, Avatar, Typography, Badge } from 'antd';
+import { List, Avatar, Typography, Badge, Space } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { ChatService } from '@/services/chat.service';
 import { Conversation } from '@/types/chat.types';
+import * as timeago from 'timeago.js';
+import vi from 'timeago.js/lib/lang/vi';
+import styles from './Chat.module.scss';
+import classNames from 'classnames/bind';
+import { useSelector } from 'react-redux';
+import { getListConversations } from '@/store/chat/chat.action';
+import { RootState, useAppDispatch } from '@/store/store';
+
+const cx = classNames.bind(styles);
 
 const { Text } = Typography;
 
@@ -13,35 +21,50 @@ interface ConversationsListProps {
 }
 
 const ConversationsList = ({ onSelectConversation, selectedUserId }: ConversationsListProps) => {
-    const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [loading, setLoading] = useState(false);
+    const dispatch = useAppDispatch();
+    const { conversations, loading } = useSelector((state: RootState) => state.chat);
 
     useEffect(() => {
+        timeago.register('vi', vi);
         fetchConversations();
     }, []);
 
     const fetchConversations = async () => {
-        setLoading(true);
+        dispatch(getListConversations());
+    };
+
+    const formatMessageTime = (dateString: string) => {
         try {
-            const data = await ChatService.getUserConversations();
-            setConversations(data);
+            return timeago.format(new Date(dateString), 'vi');
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            console.error('Error fetching conversations:', error);
-        } finally {
-            setLoading(false);
+            return '';
         }
     };
+
+    const headerItemConver = (data: Conversation) => {
+        return (
+            <div className={cx('header-item-conver')}>
+                {data.otherUser.name}
+                {data?.latestMessage?.createdAt && (
+                    <Text type="secondary" style={{ fontSize: '12px' }}>
+                        {formatMessageTime(data.latestMessage.createdAt)}
+                    </Text>
+                )}
+            </div>
+        )
+    }
 
     return (
         <List
             loading={loading}
-            dataSource={conversations}
+            dataSource={conversations || []}
             renderItem={(conv) => (
                 <List.Item
-                    onClick={() => onSelectConversation(conv.otherUserId)}
+                    onClick={() => onSelectConversation(conv.otherUser.id)}
                     style={{
                         cursor: 'pointer',
-                        backgroundColor: selectedUserId === conv.otherUserId ? '#f0f0f0' : 'white',
+                        backgroundColor: selectedUserId === conv.otherUser.id ? '#f0f0f0' : 'white',
                         padding: '12px',
                     }}
                 >
@@ -51,12 +74,13 @@ const ConversationsList = ({ onSelectConversation, selectedUserId }: Conversatio
                                 <Avatar icon={<UserOutlined />} />
                             </Badge>
                         }
-                        title={conv.otherUserName}
+                        title={headerItemConver(conv)}
                         description={
-                            <Text ellipsis style={{ maxWidth: '200px' }}>
-                                {/* {conv?.lastMessage} */}
-                                message
-                            </Text>
+                            <Space direction="vertical" size={0}>
+                                <Text ellipsis style={{ maxWidth: '200px' }}>
+                                    {conv?.latestMessage.content}
+                                </Text>
+                            </Space>
                         }
                     />
                 </List.Item>

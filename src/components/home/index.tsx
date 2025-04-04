@@ -33,7 +33,6 @@ const Home = () => {
           `https://api.openweathermap.org/data/2.5/weather?q=Hanoi&units=metric&appid=${API_KEY}`
         );
         const data = await response.json();
-        console.log('data', data);
         setWeather(data);
       } catch (err) {
         message.error(err instanceof Error ? err.message : 'Có lỗi xảy ra');

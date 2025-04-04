@@ -5,14 +5,14 @@ export async function httpClient<T>(
   options?: RequestInit
 ): Promise<T> {
   const token = Cookies.get('accessToken');
-  const secret = process.env.NEXT_PUBLIC_JWT_SECRET;
+  // const secret = process.env.NEXT_PUBLIC_JWT_SECRET;
 
   const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
-      'X-Secret-Key': secret,
+      'secret': 'duahauhihi',
       ...options?.headers,
     },
   });

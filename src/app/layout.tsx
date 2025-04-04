@@ -6,6 +6,7 @@ import LoadingFallback from '@/components/common/LoadingFallback';
 import StyledComponentsRegistry from '@/lib/AntdRegistry';
 import { App as AntdApp } from 'antd';
 import '@/styles/globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: "Personal Convenience",
@@ -21,9 +22,9 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
         <StyledComponentsRegistry>
-          <AntdApp>
+          <AntdApp >
             <Suspense fallback={<LoadingFallback />}>
-              {children}
+              <Providers>{children}</Providers>
             </Suspense>
           </AntdApp>
         </StyledComponentsRegistry>

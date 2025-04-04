@@ -1,0 +1,40 @@
+.chat-page {
+    height: 100%;
+}
+
+.chat-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    :global {
+        .ant-card-body {
+            height: 100%;
+        }
+    }
+}
+
+.chat-header {
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    height: 60px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+    height: calc(100% - 120px);
+}
+
+.chat-input {
+    padding: 16px;
+    border-top: 1px solid #f0f0f0;
+    height: 60px;
+}
+
+.header-item-conver {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}

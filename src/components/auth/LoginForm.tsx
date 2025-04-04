@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button, Form, Input, Divider, Card, Typography, message } from 'antd';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Button, Form, Input, Divider, Card, Typography } from 'antd';
 import { UserOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons';
 import Image from 'next/image';
 import { AuthService } from '@/services/auth.service';
@@ -14,6 +14,7 @@ const { Title, Text } = Typography;
 
 const LoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
 
@@ -21,10 +22,13 @@ const LoginForm = () => {
     setIsLoading(true);
     try {
       await AuthService.login(values);
-      router.push('/');
+      console.log('values', values)
+      const callbackUrl = searchParams.get('callbackUrl') || '/';
+      router.push(callbackUrl);
       successMessage('Đăng nhập thành công');
       router.refresh();
     } catch (err) {
+      console.error('Login error:', err);
       errorMessage(err instanceof Error ? err.message : 'Có lỗi xảy ra');
     } finally {
       setIsLoading(false);

@@ -1,129 +1,187 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Card, Input, Button, List, Avatar, Typography, Upload, message } from 'antd';
+import { Input, Button, Upload, message, Card, Avatar, Spin } from 'antd';
 import { SendOutlined, PaperClipOutlined, UserOutlined } from '@ant-design/icons';
 import { ChatService } from '@/services/chat.service';
-import { Message, Conversation, SendMessageDto } from '@/types/chat.types';
-import { User } from '@/types/users.type';
+import { Message } from '@/types/chat.types';
+import { UsersListResponse } from '@/types/users.type';
+import { socketService } from '@/services/socket.service';
+import styles from './Chat.module.scss';
+import classNames from 'classnames/bind';
+import type { UploadChangeParam } from 'antd/es/upload';
 
-const { TextArea } = Input;
-const { Title } = Typography;
+const cx = classNames.bind(styles);
 
 interface ChatProps {
-    currentUser: User;
-    otherUser: User;
+  currentUser: UsersListResponse | null;
+  otherUser: UsersListResponse | null;
 }
 
 const Chat = ({ currentUser, otherUser }: ChatProps) => {
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [file, setFile] = useState<File | null>(null);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    // Kết nối socket khi component mount
+    socketService.connect();
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    useEffect(() => {
-        fetchMessages();
+    // Đăng ký lắng nghe tin nhắn mới
+    const unsubscribe = socketService.onNewMessage((newMessage) => {
+      if (newMessage.senderId === otherUser?.id || newMessage.receiverId === otherUser?.id) {
+        setMessages(prev => [...prev, newMessage]);
         scrollToBottom();
-    }, [otherUser.id]);
+      }
+    });
 
+    // Cleanup khi component unmount
+    return () => {
+      unsubscribe();
+      socketService.disconnect();
+    };
+  }, [otherUser?.id]);
+
+  useEffect(() => {
     const fetchMessages = async () => {
-        try {
-            const data = await ChatService.getConversation(otherUser.id);
-            setMessages(data);
-        } catch (error) {
-            message.error('Không thể tải tin nhắn');
-        }
+      if (!otherUser?.id) return;
+      
+      setLoading(true);
+      try {
+        const data = await ChatService.getConversation(otherUser.id);
+        setMessages(data || []);
+        scrollToBottom();
+      } catch (error: unknown) {
+        console.log(error)
+        message.error('Không thể tải tin nhắn');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleSend = async () => {
-        if (!inputMessage.trim() && !file) return;
+    fetchMessages();
+  }, [otherUser?.id]);
 
-        setLoading(true);
-        try {
-            const messageDto: SendMessageDto = {
-                receiverId: otherUser.id,
-                content: inputMessage,
-                file: file || undefined,
-            };
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-            const newMessage = await ChatService.sendMessage(messageDto);
-            setMessages([...messages, newMessage]);
-            setInputMessage('');
-            setFile(null);
-        } catch (error) {
-            message.error('Không thể gửi tin nhắn');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() && !file) return;
+    if (!otherUser?.id) return;
 
-    return (
-        <Card className="chat-container" style={{ height: '600px', display: 'flex', flexDirection: 'column' }}>
-            <div className="chat-header" style={{ padding: '16px', borderBottom: '1px solid #f0f0f0' }}>
-                <Title level={4} style={{ margin: 0 }}>
-                    {otherUser.name}
-                </Title>
+    try {
+      // Gửi tin nhắn qua socket
+      socketService.sendMessage({
+        receiverId: otherUser.id,
+        content: inputMessage,
+        file: file || undefined
+      });
+
+      // Reset input
+      setInputMessage('');
+      setFile(null);
+    } catch (error: unknown) {
+        console.log(error)
+      message.error('Không thể gửi tin nhắn');
+    }
+  };
+
+  const handleFileChange = (info: UploadChangeParam) => {
+    if (info.file.status === 'done') {
+      setFile(info.file.originFileObj);
+    }
+  };
+
+  if (!otherUser) {
+    return <div>Vui lòng chọn người dùng để chat</div>;
+  }
+
+  return (
+    <Card 
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Avatar icon=<UserOutlined/> />
+          <span>{otherUser.name}</span>
+        </div>
+      }
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      bodyStyle={{ height: 'calc(100% - 57px)', display: 'flex', flexDirection: 'column', padding: 0 }}
+    >
+      <div className={cx('chat-messages')} style={{ 
+        flex: 1, 
+        overflowY: 'auto', 
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        height: 'calc(100% - 80px)' // 80px là chiều cao của footer
+      }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <Spin />
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              style={{
+                alignSelf: msg.senderId === currentUser?.id ? 'flex-end' : 'flex-start',
+                maxWidth: '70%'
+              }}
+            >
+              <Card
+                size="small"
+                style={{
+                  backgroundColor: msg.senderId === currentUser?.id ? '#1890ff' : '#f0f0f0',
+                  color: msg.senderId === currentUser?.id ? 'white' : 'black'
+                }}
+              >
+                {msg.content}
+                {msg.file && (
+                  <div style={{ marginTop: '8px' }}>
+                    <a href={msg.file} target="_blank" rel="noopener noreferrer">
+                      Xem file đính kèm
+                    </a>
+                  </div>
+                )}
+              </Card>
             </div>
+          ))
+        )}
+        <div ref={messagesEndRef} />
+      </div>
 
-            <div className="chat-messages" style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
-                <List
-                    dataSource={messages}
-                    renderItem={(msg) => (
-                        <List.Item style={{ 
-                            justifyContent: msg.senderId === currentUser.id ? 'flex-end' : 'flex-start' 
-                        }}>
-                            <div style={{
-                                maxWidth: '70%',
-                                padding: '8px 16px',
-                                borderRadius: '8px',
-                                backgroundColor: msg.senderId === currentUser.id ? '#1890ff' : '#f0f0f0',
-                                color: msg.senderId === currentUser.id ? 'white' : 'black',
-                            }}>
-                                {msg.content}
-                            </div>
-                        </List.Item>
-                    )}
-                />
-                <div ref={messagesEndRef} />
-            </div>
-
-            <div className="chat-input" style={{ padding: '16px', borderTop: '1px solid #f0f0f0' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <Upload
-                        beforeUpload={(file) => {
-                            setFile(file);
-                            return false;
-                        }}
-                        showUploadList={false}
-                    >
-                        <Button icon={<PaperClipOutlined />} />
-                    </Upload>
-                    <TextArea
-                        value={inputMessage}
-                        onChange={(e) => setInputMessage(e.target.value)}
-                        placeholder="Nhập tin nhắn..."
-                        autoSize={{ minRows: 1, maxRows: 4 }}
-                        onPressEnter={(e) => {
-                            if (!e.shiftKey) {
-                                e.preventDefault();
-                                handleSend();
-                            }
-                        }}
-                    />
-                    <Button 
-                        type="primary" 
-                        icon={<SendOutlined />} 
-                        onClick={handleSend}
-                        loading={loading}
-                    />
-                </div>
-            </div>
-        </Card>
-    );
+      <div className={cx('chat-input')} style={{ padding: '16px', borderTop: '1px solid #f0f0f0', height: '80px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Upload
+            showUploadList={false}
+            beforeUpload={() => false}
+            onChange={handleFileChange}
+          >
+            <Button icon={<PaperClipOutlined />} />
+          </Upload>
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onPressEnter={handleSendMessage}
+            placeholder="Nhập tin nhắn..."
+          />
+          <Button 
+            type="primary" 
+            icon={<SendOutlined />} 
+            onClick={handleSendMessage}
+          />
+        </div>
+        {file && (
+          <div style={{ marginTop: '8px', fontSize: '12px' }}>
+            File đã chọn: {file.name}
+          </div>
+        )}
+      </div>
+    </Card>
+  );
 };
 
 export default Chat; 
